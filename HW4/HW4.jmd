@@ -1,0 +1,93 @@
+---
+title: Measurements Homework 4
+author: Jackson Wills
+---
+
+**Number 1**
+
+We need to get a sensitivity from the table in the book.
+
+Assuming the response is linear... which the book table seems to suggest that it isnt exactly linear....
+I'll assume that if the CJT is zero, then sensitivity = 1mv/25 Degrees C
+```julia
+Sensitiviy = 1/25 #mV/Degrees C
+CJT = 22.8 #degrees C
+E_CJT_0 = Sensitiviy*CJT # mV
+
+
+E_Tm_CJT = [-1.689 -1.108 -.113 3.198] # mV
+
+E_Tm_0 = E_Tm_CJT .+ E_CJT_0
+```
+Now Ill convert those voltages into temperatures using sensitivity.
+```julia
+Tm = E_Tm_0/Sensitiviy # Degrees C
+```
+
+---
+
+**Number 2**
+Get the steady state response measured by the sensor
+```julia
+using SymPy
+@vars t
+omega_n = 1 * 2*pi #rad/s
+zeta = .65
+
+A1 = .5
+omega1 = 3*pi
+x_h_term1 = A1*sin(omega1*t) # cm
+phi1 = atan(2*zeta*omega1/omega_n/(1-omega1/omega_n))
+
+A2 = .8
+omega2 = 10*pi
+x_h_term2 = A2*sin(omega2*t) # cm
+phi2 = atan(2*zeta*omega2/omega_n/(1-omega2/omega_n))
+
+
+x_r_term1 = A1*(omega1/omega_n)^2/sqrt((1-((omega1/omega_n)^2))+(2*zeta*omega1/omega_n)^2)*sin(omega1*t-phi1) # cm
+```
+```julia
+x_r_term2 = A2*(omega2/omega_n)^2/sqrt((1-((omega2/omega_n)^2))+(2*zeta*omega2/omega_n)^2)*sin(omega2*t-phi2) # cm
+```
+```julia
+x_r = x_r_term1 + x_r_term2 # cm
+```
+
+---
+
+**Number 3**
+```julia
+omega_n = 1500 * 2*pi # rad/s
+zeta = .707
+x_r_mag = 2e-6; # m
+omega = 1200 *2*pi # rad/s
+```
+a)
+
+if omega << omega_n then...
+```julia
+Acc_amp = x_r_mag*omega_n^2 # m/s/s
+```
+
+
+b)
+
+if omega << omega_n  is NOT TRUE then...
+```julia
+Acc_amp_accurate = x_r_mag/((1/omega_n)^2/sqrt((1-((omega/omega_n)^2))+(2*zeta*omega/omega_n)^2)) # m/s/s
+```
+
+
+---
+**Number 4**
+```julia
+SPL1 = 120 # dB
+SPL2 = 90 # dB
+p_rms1 = .00002*10^(SPL1/20) # N/m/m
+```
+
+```julia
+p_rms2 = .00002*10^(SPL2/20)
+percent_reduction = (p_rms1-p_rms2)/p_rms1*100
+```
